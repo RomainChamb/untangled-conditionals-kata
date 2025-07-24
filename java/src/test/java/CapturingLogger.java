@@ -1,4 +1,4 @@
-import dependencies.Logger;
+import coding.dojo.dependencies.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

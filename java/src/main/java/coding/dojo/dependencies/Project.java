@@ -1,7 +1,7 @@
-package dependencies;
+package coding.dojo.dependencies;
 
-import static dependencies.TestStatus.NO_TESTS;
-import static dependencies.TestStatus.PASSING_TESTS;
+import static coding.dojo.dependencies.TestStatus.NO_TESTS;
+import static coding.dojo.dependencies.TestStatus.PASSING_TESTS;
 
 public class Project {
     private final boolean buildsSuccessfully;

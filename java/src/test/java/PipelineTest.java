@@ -1,14 +1,15 @@
-import dependencies.Config;
-import dependencies.Emailer;
-import dependencies.Project;
+import coding.dojo.Pipeline;
+import coding.dojo.dependencies.Config;
+import coding.dojo.dependencies.Emailer;
+import coding.dojo.dependencies.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static dependencies.TestStatus.FAILING_TESTS;
-import static dependencies.TestStatus.NO_TESTS;
-import static dependencies.TestStatus.PASSING_TESTS;
+import static coding.dojo.dependencies.TestStatus.FAILING_TESTS;
+import static coding.dojo.dependencies.TestStatus.NO_TESTS;
+import static coding.dojo.dependencies.TestStatus.PASSING_TESTS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;

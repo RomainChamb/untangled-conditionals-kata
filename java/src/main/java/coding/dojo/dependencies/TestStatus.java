@@ -1,4 +1,4 @@
-package dependencies;
+package coding.dojo.dependencies;
 
 public enum TestStatus {
     NO_TESTS, //
