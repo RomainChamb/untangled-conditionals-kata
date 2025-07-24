@@ -42,7 +42,6 @@ public class Pipeline {
         } else {
             deploySuccessful = false;
         }
-
         if (config.sendEmailSummary()) {
             log.info("Sending email");
             if (testsPassed) {
