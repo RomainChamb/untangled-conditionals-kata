@@ -18,6 +18,19 @@ public class Pipeline {
         boolean testsPassed;
         boolean deploySuccessful;
 
+        testsPassed = hasTestsPassed(project);
+
+        if (testsPassed) {
+            deploySuccessful = isDeploySuccessful(project);
+        } else {
+            deploySuccessful = false;
+        }
+
+        sendEmail(testsPassed, deploySuccessful);
+    }
+
+    private boolean hasTestsPassed(Project project) {
+        boolean testsPassed;
         if (project.hasTests()) {
             if ("success".equals(project.runTests())) {
                 log.info("Tests passed");
@@ -30,18 +43,22 @@ public class Pipeline {
             log.info("No tests");
             testsPassed = true;
         }
+        return testsPassed;
+    }
 
-        if (testsPassed) {
-            if ("success".equals(project.deploy())) {
-                log.info("Deployment successful");
-                deploySuccessful = true;
-            } else {
-                log.error("Deployment failed");
-                deploySuccessful = false;
-            }
+    private boolean isDeploySuccessful(Project project) {
+        boolean deploySuccessful;
+        if ("success".equals(project.deploy())) {
+            log.info("Deployment successful");
+            deploySuccessful = true;
         } else {
+            log.error("Deployment failed");
             deploySuccessful = false;
         }
+        return deploySuccessful;
+    }
+
+    private void sendEmail(boolean testsPassed, boolean deploySuccessful) {
         if (config.sendEmailSummary()) {
             log.info("Sending email");
             if (testsPassed) {
