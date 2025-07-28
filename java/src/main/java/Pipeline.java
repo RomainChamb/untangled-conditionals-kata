@@ -15,57 +15,55 @@ public class Pipeline {
     }
 
     public void run(Project project) {
-        boolean testsPassed;
-        boolean deploySuccessful;
+        try {
+            runTests(project);
+            deployProject(project);
+            sendEmail("Deployment completed successfully");
+        } catch (TestsFailedException e) {
+            sendEmail("Tests failed");
+        } catch (DeployProjectFailedException e) {
+            sendEmail("Deployment failed");
+        }
 
-        testsPassed = runTests(project);
-        deploySuccessful = deployProject(project, testsPassed);
-
-        sendEmail(testsPassed, deploySuccessful);
     }
 
-    private boolean deployProject(Project project, boolean testsPassed) {
-        if (!testsPassed) {
-            return false;
-        }
-        if (!"success".equals(project.deploy())) {
-            log.error("Deployment failed");
-            return false;
-        }
-        log.info("Deployment successful");
-        return true;
-    }
-
-    private boolean runTests(Project project) {
+    private void runTests(Project project) throws TestsFailedException {
         if (!project.hasTests()) {
             log.info("No tests");
-            return true;
+            return;
         }
         if (!"success".equals(project.runTests())) {
             log.error("Tests failed");
-            return false;
+            throw new TestsFailedException();
         }
 
         log.info("Tests passed");
-        return true;
     }
 
-    private void sendEmail(boolean testsPassed, boolean deploySuccessful) {
-        if (config.sendEmailSummary()) {
-            log.info("Sending email");
-            String message = "";
-            if (testsPassed) {
-                if (deploySuccessful) {
-                    emailer.send("Deployment completed successfully");
-                } else {
-                    emailer.send("Deployment failed");
-                }
-            } else {
-                message = "Tests failed";
-                emailer.send(message);
-            }
-        } else {
-            log.info("Email disabled");
+    private static class TestsFailedException extends Exception {
+        public TestsFailedException() {
         }
+    }
+
+    private void deployProject(Project project) throws DeployProjectFailedException {
+        if (!"success".equals(project.deploy())) {
+            log.error("Deployment failed");
+            throw new DeployProjectFailedException();
+        }
+        log.info("Deployment successful");
+    }
+
+    private static class DeployProjectFailedException extends Throwable {
+        public DeployProjectFailedException() {
+        }
+    }
+
+    private void sendEmail(String message) {
+        if (!config.sendEmailSummary()) {
+            log.info("Email disabled");
+            return;
+        }
+        log.info("Sending email");
+        emailer.send(message);
     }
 }
