@@ -15,27 +15,16 @@ public class Pipeline {
     }
 
     public void run(Project project) {
-        boolean testsPassed;
-        boolean deploySuccessful;
-
-        testsPassed = runTests(project);
-        deploySuccessful = deployProject(project, testsPassed);
-
-        sendEmail(testsPassed, deploySuccessful);
-    }
-
-    private boolean deployProject(Project project, boolean testsPassed) {
-        if (!testsPassed) {
-            return false;
+        if(!runTests(project)) {
+            sendEmail("Tests failed");
+            return;
         }
-        if (!"success".equals(project.deploy())) {
-            log.error("Deployment failed");
-            return false;
+        if (!deployProject(project)) {
+            sendEmail("Deployment failed");
+            return;
         }
-        log.info("Deployment successful");
-        return true;
+        sendEmail("Deployment completed successfully");
     }
-
     private boolean runTests(Project project) {
         if (!project.hasTests()) {
             log.info("No tests");
@@ -50,20 +39,19 @@ public class Pipeline {
         return true;
     }
 
-    private void sendEmail(boolean testsPassed, boolean deploySuccessful) {
+    private boolean deployProject(Project project) {
+        if (!"success".equals(project.deploy())) {
+            log.error("Deployment failed");
+            return false;
+        }
+        log.info("Deployment successful");
+        return true;
+    }
+
+    private void sendEmail(String message) {
         if (config.sendEmailSummary()) {
             log.info("Sending email");
-            String message = "";
-            if (testsPassed) {
-                if (deploySuccessful) {
-                    emailer.send("Deployment completed successfully");
-                } else {
-                    emailer.send("Deployment failed");
-                }
-            } else {
-                message = "Tests failed";
-                emailer.send(message);
-            }
+            emailer.send(message);
         } else {
             log.info("Email disabled");
         }
