@@ -18,18 +18,25 @@ public class Pipeline {
         boolean testsPassed;
         boolean deploySuccessful;
 
-        testsPassed = hasTestsPassed(project);
-
-        if (testsPassed) {
-            deploySuccessful = isDeploySuccessful(project);
-        } else {
-            deploySuccessful = false;
-        }
+        testsPassed = runTests(project);
+        deploySuccessful = deployProject(project, testsPassed);
 
         sendEmail(testsPassed, deploySuccessful);
     }
 
-    private boolean hasTestsPassed(Project project) {
+    private boolean deployProject(Project project, boolean testsPassed) {
+        if (!testsPassed) {
+            return false;
+        }
+        if (!"success".equals(project.deploy())) {
+            log.error("Deployment failed");
+            return false;
+        }
+        log.info("Deployment successful");
+        return true;
+    }
+
+    private boolean runTests(Project project) {
         if (!project.hasTests()) {
             log.info("No tests");
             return true;
@@ -40,15 +47,6 @@ public class Pipeline {
         }
 
         log.info("Tests passed");
-        return true;
-    }
-
-    private boolean isDeploySuccessful(Project project) {
-        if (!"success".equals(project.deploy())) {
-            log.error("Deployment failed");
-            return false;
-        }
-        log.info("Deployment successful");
         return true;
     }
 
